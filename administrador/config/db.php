@@ -1,14 +1,14 @@
-<?php
+<?php 
 $host="localhost";
 $db="ingresantes";
 $usuario="root";
 $contrasenia="";
 
 try {
-    $conexion= new PDO ("mysql:host=$host;dbname=$db",$usuario,$contrasenia);
-    if ($conexion){ echo "Conectado...a Sistema";}
+    $conexion=new PDO("mysql:host=$host;dbname=$db",$usuario,$contrasenia);
+    //if($conexion){echo "Conectado .. a Sistema";}
 } catch (Exception $ex) {
-    echo $ex-> getMessage();
+    echo $ex-> getMessage ();
+    
 }
-
 ?>

@@ -1,138 +1,150 @@
 <?php include ("../template/cabecera.php");?>
+
 <?php
-$txtID=(isset($_POST['txtID']))?$_POST['txtID']:"";
-$txtNombre=(isset($_POST['txtNombre']))?$_POST['txtNombre']:"";
-$txtApellido=(isset($_POST['txtApellido']))?$_POST['txtApellido']:"";
-$txtDni=(isset($_POST['txtDni']))?$_POST['txtDni']:"";
-$txtDomicilio=(isset($_POST['txtDomicilio']))?$_POST['txtDomicilio']:"";
-$txtContacto=(isset($_POST['txtContacto']))?$_POST['txtContacto']:"";
-$txtEmail=(isset($_POST['txtEmail']))?$_POST['txtEmail']:"";
-$accion=(isset($_POST['accion']))?$_POST['accion']:"";
+$txtID = isset($_POST['txtID']) ? $_POST['txtID'] : null;
+$txtApellido = isset($_POST['txtApellido']) ? $_POST['txtApellido'] : null;
+$txtNombre = isset($_POST['txtNombre']) ? $_POST['txtNombre'] : null;
+$txtDomicilio = isset($_POST['txtDomicilio']) ? $_POST['txtDomicilio'] : null;
+$accion = isset($_POST['accion']) ? $_POST['accion'] : null;
 
-$host="localhost";
-$db="ingresantes";
-$usuario="root";
-$contrasenia="";
+include("../config/db.php");
 
-try {
-    $conexion= new PDO ("mysql:host=$host;dbname=$db",$usuario,$contrasenia);
-    if ($conexion){ echo "Conectado...a Sistema";}
-} catch (Exception $ex) {
-    echo $ex-> getMessage();
-}
+switch($accion){
 
-
-switch ($accion) {
     case "Agregar":
-        $sentenciaSql = $conexion->prepare("INSERT INTO `ingresantes` 
-        (`id_ingresante`, `nombre`, `apellido`, `dni`, `domicilio`, `numero_contacto`, `correo`, `FK_id_inscripcion`, `FK_id_curso`) 
-        VALUES (:nombre, :apellido, :dni, :domicilio, :contacto, :email, null, null)");
+    //INSERT INTO `alumno` (`id_alumno`, `apellido`, `nombre`, `domicilio`) VALUES (NULL, 'Martinez', 'Carla', 'Balbin');
+    $sentenciaSQL=$conexion->prepare
+    ("INSERT INTO `alumno` (`apellido`, `nombre`, `domicilio`)
+     VALUES (:apellido, :nombre, :domicilio);");
 
-        $sentenciaSql->bindParam(':id', $txtID);
-        $sentenciaSql->bindParam(':nombre', $TextNombre);
-        $sentenciaSql->bindParam(':apellido', $TextApellido);
-        $sentenciaSql->bindParam(':dni', $TextDni);
-        $sentenciaSql->bindParam(':domicilio', $TextDomicilio);
-        $sentenciaSql->bindParam(':contacto', $TextContacto);
-        $sentenciaSql->bindParam(':email', $TextoEmail);
+        $sentenciaSQL->bindParam(':apellido', $txtApellido);
+        $sentenciaSQL->bindParam(':nombre', $txtNombre);
+        $sentenciaSQL->bindParam(':domicilio', $txtDomicilio);
+        $sentenciaSQL->execute();
+    break;
 
-        $sentenciaSql->execute();
-        echo "Presionado botón agregar";
-        break;
+    case "Modificar":
+
+        $sentenciaSQL=$conexion->prepare("UPDATE  alumno SET apellido=:apellido, nombre=:nombre, domicilio=:domicilio WHERE id_alumno=:id_alumno");
+        $sentenciaSQL->bindParam(':apellido', $txtApellido);
+        $sentenciaSQL->bindParam(':nombre', $txtNombre);
+        $sentenciaSQL->bindParam(':domicilio', $txtDomicilio);
+        $sentenciaSQL->bindParam(':id_alumno', $txtID);
+        $sentenciaSQL->execute();
+    break;
+
+    case "Seleccionar":
+        $sentenciaSQL=$conexion->prepare("SELECT * FROM alumno WHERE id_alumno=:id_alumno");
+        $sentenciaSQL->bindParam(':id_alumno',$txtID);
+        $sentenciaSQL->execute();
+        $listaAlumnos=$sentenciaSQL->fetch(PDO::FETCH_LAZY);
+
+        $txtID=$listaAlumnos['id_alumno'];
+        $txtApellido=$listaAlumnos['apellido'];
+        $txtNombre=$listaAlumnos['nombre'];
+        $txtDomicilio=$listaAlumnos['domicilio'];
+
     
+    break;
+
+    case "Borrar":
+        $sentenciaSQL=$conexion->prepare("DELETE FROM alumno WHERE id_alumno=:id_alumno");
+        $sentenciaSQL->bindParam(':id_alumno',$txtID);
+        $sentenciaSQL->execute();
+
+    break;
+
 }
 
-?>
+   $sentenciaSQL=$conexion->prepare("SELECT * FROM alumno");
+   $sentenciaSQL-> execute();
+   $listaAlumnos=$sentenciaSQL->fetchAll(PDO::FETCH_ASSOC);
+
+?>  
+
 
 <div class="col-md-5">
- <div class="card">
+
+<div class="card">
     <div class="card-header">
-        Datos de Estudiantes 
+        Datos de Alumnos:
     </div>
 
     <div class="card-body">
-    <form method="POST" enctype="multipart/form-data">
-
+    <form method="POST" action="estudiantes.php">
     <div class = "form-group">
     <label for="txtID">ID</label>
-    <input type="text" class="form-control" name="TxtID" id="txtID"  placeholder="ID">
-    </div>
-
-    <div class = "form-group">
-    <label for="txtNombre">Nombre:</label>
-    <input type="text" class="form-control" name="TxtNombre" id="txtNombre"  placeholder="Nombre">
-    </div>
+    <input type="text" class="form-control" value="<?php echo $txtID;?>" name="txtID" id="txtID" placeholder="ID">
+     </div>
 
     <div class = "form-group">
     <label for="txtApellido">Apellido:</label>
-    <input type="text" class="form-control" name="TxtApellido" id="txtApellido"  placeholder="Apellido">
-    </div>
+    <input type="text" class="form-control" value="<?php echo $txtApellido;?>"  name="txtApellido" id="txtApellido" placeholder="Apellido">
+     </div>
 
     <div class = "form-group">
-    <label for="txtDni">DNI:</label>
-    <input type="text" class="form-control" name="TxtDni" id="txtDni"  placeholder="Dni">
-    </div>
+    <label for="txtNombre">Nombre:</label>
+    <input type="text" class="form-control" value="<?php echo $txtNombre;?>" name="txtNombre" id="txtNombre" placeholder="Nombre">
+     </div>
 
     <div class = "form-group">
     <label for="txtDomicilio">Domicilio:</label>
-    <input type="text" class="form-control" name="TxtDomicilio" id="txtDomicilio"  placeholder="Domicilio">
-    </div>
-
-    <div class = "form-group">
-    <label for="txtContacto">Contacto:</label>
-    <input type="text" class="form-control" name="TxtContacto" id="txtContacto"  placeholder="Contacto">
-    </div>
-
-    <div class = "form-group">
-    <label for="txtEmail">Email:</label>
-    <input type="text" class="form-control" name="TxtEmail" id="txtEmail"  placeholder="Email">
-    </div>
+    <input type="text" class="form-control" value="<?php echo $txtDomicilio;?>" name="txtDomicilio" id="txtDomicilio" placeholder="Domicilio">
+     </div>
 
 
     <div class="btn-group" role="group" aria-label="">
-        <button type="button" name="Agregar" value="Agregar" class="btn btn-success">Agregar</button>
-        <button type="button" name="Modificar" value="Modificar" class="btn btn-warning">Modificar</button>
-        <button type="button" name="Cancelar" value="Cancelar" class="btn btn-info">Cancelar</button>
+        <button type="submit" name="accion" value="Agregar" class="btn btn-success">Agregar</button>
+        <button type="submit" name="accion" value="Modificar" class="btn btn-warning">Modificar</button>
+        <button type="submit" name="accion" value="Cancelar" class="btn btn-info">Cancelar</button>
     </div>
     
     
     </form>
+    
 
     </div>
 
- </div>
-
 </div>
+</div>
+
 <div class="col-md-7">
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>id</th>
-                <th>Nombre</th>
+                <th>ID</th>
                 <th>Apellido</th>
-                <th>Dni</th>
+                <th>Nombre</th>
                 <th>Domicilio</th>
-                <th>Contacto</th>
-                <th>Email</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
-
+<?php foreach ($listaAlumnos as $alumno) { ?>
             <tr>
-                <td>3</td>
-                <td>Diego</td>
-                <td>Maidana</td>
-                <td>38102136</td>
-                <td>Balbin</td>
-                <td>2964497229</td>
-                <td>dsmaidana@tdf.edu.ar</td>
-                <td>Seleccionar | Borrar</td>
+                <td><?php echo $alumno['id_alumno'];?></td>
+                <td><?php echo $alumno['apellido'];?></td>
+                <td><?php echo $alumno['nombre'];?></td>
+                <td><?php echo $alumno['domicilio'];?></td>
+
+                <td>
+                <form method="post">
+                    <input type="hidden" name="txtID" id="txtID" value="<?php echo $alumno['id_alumno'];?>">
+                    <input type="submit" name="accion" value="Seleccionar" class="btn btn-primary"/>
+                    <input type="submit" name="accion" value="Borrar" class="btn btn-danger"/>
+
+                </form>   
+                    
+                    
+                
+                </td>
+
+
+
             </tr>
-           
+            <?php } ?>
         </tbody>
     </table>
 </div>
-
 
 <?php include ("../template/pie.php");?>
